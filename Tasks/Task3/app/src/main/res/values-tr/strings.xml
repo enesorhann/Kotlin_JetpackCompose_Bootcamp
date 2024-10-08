@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_head">Ihtiyacını Al</string>
+    <string name="ship_txt">Hizli Teslimat</string>
+    <string name="pay_txt">Guvenli Odeme</string>
+    <string name="home_txt">Anasayfa</string>
+    <string name="category_txt">Kategori</string>
+    <string name="profile_txt">Profil</string>
+    <string name="contact_txt">Iletisim</string>
+    <string name="men_txt">Erkek</string>
+    <string name="woman_txt">Kadin</string>
+    <string name="kids_txt">Cocuk</string>
+    <string name="baby_txt">Bebek</string>
+</resources>

@@ -1,0 +1,14 @@
+<resources>
+        <string name="app_name" translatable="false">SWYN</string>
+        <string name="app_head">Shop What You Need</string>
+        <string name="ship_txt">Shipping Delivery</string>
+        <string name="pay_txt">Secure Payment</string>
+        <string name="home_txt">Home</string>
+        <string name="category_txt">Category</string>
+        <string name="profile_txt">Profile</string>
+        <string name="contact_txt">Contact</string>
+        <string name="men_txt">Men</string>
+        <string name="woman_txt">Women</string>
+        <string name="kids_txt">Kids</string>
+        <string name="baby_txt">Babies</string>
+</resources>
