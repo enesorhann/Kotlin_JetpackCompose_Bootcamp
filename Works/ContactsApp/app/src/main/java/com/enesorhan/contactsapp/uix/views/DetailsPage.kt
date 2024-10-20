@@ -1,6 +1,5 @@
 package com.enesorhan.contactsapp.uix.views
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,18 +17,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.enesorhan.contactsapp.data.entity.Persons
+import com.enesorhan.contactsapp.data.entity.retrofit_entity.Retro_Persons
+import com.enesorhan.contactsapp.uix.viewModel.DetaySayfaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsPage(navController: NavController,inputPerson: Persons){
+fun DetailsPage(navController: NavController, inputPerson: Retro_Persons, detaySayfaViewModel: DetaySayfaViewModel){
 
     val tf_name  = remember { mutableStateOf("") }
     val tf_phone  = remember { mutableStateOf("") }
 
     LaunchedEffect(key1 = true) {
-        tf_name.value = inputPerson.person_name
-        tf_phone.value = inputPerson.person_phone
+        tf_name.value = inputPerson.kisi_ad!!
+        tf_phone.value = inputPerson.kisi_tel!!
     }
 
     Scaffold(
@@ -58,14 +58,11 @@ fun DetailsPage(navController: NavController,inputPerson: Persons){
                 label = { Text(text = "Person Phone")}
             )
             Button(onClick = {
-                updatePerson(inputPerson.person_id,tf_name.value,tf_phone.value)
+                detaySayfaViewModel.update(inputPerson.kisi_id!!,tf_name.value,tf_phone.value)
                 navController.navigate("mainpage")
             }) {
                 Text(text = "Update")
             }
         }
     }
-}
-fun updatePerson(person_id:Int,person_name:String,person_phone:String) {
-    Log.e("Update Person","Updated Person: $person_id - $person_name - $person_phone")
 }

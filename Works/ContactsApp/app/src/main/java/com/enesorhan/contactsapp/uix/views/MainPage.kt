@@ -25,6 +25,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,26 +40,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.enesorhan.contactsapp.R
 import com.enesorhan.contactsapp.data.entity.Persons
+import com.enesorhan.contactsapp.data.entity.retrofit_entity.Retro_Persons
+import com.enesorhan.contactsapp.uix.viewModel.AnasayfaViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainPage(navController: NavController){
+fun MainPage(navController: NavController,anasayfaViewModel: AnasayfaViewModel){
 
     val tf  = remember { mutableStateOf("") }
     val isSearched  = remember { mutableStateOf(false) }
-    val persons = remember { mutableStateListOf<Persons>() }
+    val persons = anasayfaViewModel.kisilerListesi.observeAsState(listOf<Retro_Persons>())
     val snackbarHostState = remember {SnackbarHostState()}
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
-        val p1 = Persons(1,"Zehra","4444")
-        val p2 = Persons(2,"Ayca","5555")
-        val p3 = Persons(3,"Mert","6666")
-        persons.add(p1)
-        persons.add(p2)
-        persons.add(p3)
+        anasayfaViewModel.kisileriYukle()
     }
 
     Scaffold(
@@ -70,7 +68,7 @@ fun MainPage(navController: NavController){
                             value = tf.value,
                             onValueChange = {
                                 tf.value=it
-                                search(it)
+                                anasayfaViewModel.ara(it)
                             },
                             label = { Text(text = "Search")},
                             colors = TextFieldDefaults.colors(
@@ -127,9 +125,9 @@ fun MainPage(navController: NavController){
                     .fillMaxSize(),
             ) {
                 items(
-                    count = persons.count(),
+                    count = persons.value.count(),
                     itemContent = {
-                        val person = persons[it]
+                        val person = persons.value[it]
 
                         Card(
                             onClick = {
@@ -149,9 +147,9 @@ fun MainPage(navController: NavController){
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.SpaceEvenly
                                 ) {
-                                    Text(text = person.person_name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                    Text(text = person.kisi_ad!!, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                                     Spacer(modifier = Modifier.size(5.dp))
-                                    Text(text = person.person_phone, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                                    Text(text = person.kisi_tel!!, fontSize = 18.sp, fontWeight = FontWeight.Medium)
                                 }
                                 IconButton(
                                     onClick = {
@@ -160,7 +158,7 @@ fun MainPage(navController: NavController){
                                             val sb = snackbarHostState.showSnackbar("Do you want to delete this person", actionLabel = "Yes",withDismissAction = true)
 
                                             if (sb == SnackbarResult.ActionPerformed){
-                                                deletePerson(person.person_id)
+                                                anasayfaViewModel.sil(person.kisi_id!!)
                                                 snackbarHostState.showSnackbar("Deleted")
                                             }else if(sb == SnackbarResult.Dismissed){
                                                 snackbarHostState.showSnackbar("Canceled")
@@ -177,10 +175,5 @@ fun MainPage(navController: NavController){
     }
 }
 
-fun deletePerson(person_id:Int) {
-    Log.e("Delete","Deleted:$person_id")
-}
 
-fun search(searchedWord: String) {
-    Log.e("Search","Searched:$searchedWord")
-}
+

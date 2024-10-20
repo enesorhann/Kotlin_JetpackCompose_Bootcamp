@@ -1,6 +1,8 @@
 package com.enesorhan.genomflix.uix.views
 
 import android.app.Activity
+import android.content.Context
+import android.net.ConnectivityManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -23,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,33 +39,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.enesorhan.genomflix.data.entity.Movies
+import com.enesorhan.genomflix.data.entity.retro_entity.Filmler_Retrofit
+import com.enesorhan.genomflix.uix.viewModels.AnasayfaViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainPage(navController: NavController){
+fun MainPage(navController: NavController,anasayfaViewModel: AnasayfaViewModel){
 
-    val movieList = remember { mutableStateListOf<Movies>() }
+    val movieList = anasayfaViewModel.movieList.observeAsState(listOf())
     val hostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val isConnected = connectivityManager.activeNetworkInfo?.isConnectedOrConnecting == true
 
     LaunchedEffect(key1 = true) {
-
-        val f1 = Movies(1,"Django","django",24)
-        val f2 = Movies(2,"Interstellar","interstellar",32)
-        val f3 = Movies(3,"Inception","inception",16)
-        val f4 = Movies(4,"The Hateful Eight","thehatefuleight",28)
-        val f5 = Movies(5,"The Pianist","thepianist",18)
-        val f6 = Movies(6,"Anadoluda","anadoluda",10)
-        movieList.add(f1)
-        movieList.add(f2)
-        movieList.add(f3)
-        movieList.add(f4)
-        movieList.add(f5)
-        movieList.add(f6)
-
+        anasayfaViewModel.getMovies()
     }
 
     Scaffold(
@@ -83,45 +81,57 @@ fun MainPage(navController: NavController){
                 .padding(paddingValues)
         ) {
 
-            items(
-                count = movieList.count(),
-                itemContent = {
-                    val movie = movieList[it]
-                    Card(
-                        onClick = {
-                            val jsonMovie = Gson().toJson(movie)
-                            navController.navigate("detailspage/$jsonMovie") },
-                        modifier = Modifier.padding(5.dp)
-                    ) {
-                        Column(
-                          Modifier.fillMaxWidth()
+            if (!isConnected){
+                scope.launch {
+                    hostState.showSnackbar("Internet Baglantisi Zayif")
+                }
+
+            }
+
+            if(movieList.value.isNullOrEmpty()){
+                item {
+                    CircularProgressIndicator()
+                }
+            }
+            else{
+                items(
+                    count = movieList.value.count(),
+                    itemContent = {
+                        val movie = movieList.value[it]
+                        Card(
+                            onClick = {
+                                val jsonMovie = Gson().toJson(movie)
+                                navController.navigate("detailspage/$jsonMovie") },
+                            modifier = Modifier.padding(5.dp)
                         ) {
-                            val activity = LocalContext.current as Activity
-                            Image(bitmap = ImageBitmap.imageResource(id = activity.resources.getIdentifier(
-                                movie.movie_img_name,"drawable",activity.packageName
-                            )), contentDescription = "",Modifier.size(200.dp,300.dp))
-                            Row(
-                                Modifier.fillMaxWidth().padding(5.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                Modifier.fillMaxWidth()
                             ) {
-                                Text(text = "${movie.movie_price} ₺", fontSize = 24.sp)
-                                Button(
-                                    onClick = {
-                                    scope.launch {
-                                        hostState.showSnackbar("${movie.movie_name} Sepete Eklendi")
-                                    }
-                                },
+                                val url = "http://kasimadalan.pe.hu/filmler_yeni/resimler/${movie.resim}"
+                                GlideImage(imageModel = url, modifier = Modifier.size(200.dp,300.dp))
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(5.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = "Sepete Ekle")
+                                    Text(text = "${movie.fiyat} ₺", fontSize = 24.sp)
+                                    Button(
+                                        onClick = {
+                                            scope.launch {
+                                                hostState.showSnackbar("${movie.ad} Sepete Eklendi")
+                                            }
+                                        },
+                                    ) {
+                                        Text(text = "Sepete Ekle")
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            )
-
-
+                )
+            }
         }
     }
 }

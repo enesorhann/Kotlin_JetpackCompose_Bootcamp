@@ -18,10 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.enesorhan.contactsapp.uix.viewModel.KayitSayfaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SavePage(navController: NavController){
+fun SavePage(navController: NavController,kayitSayfaViewModel: KayitSayfaViewModel){
 
     val tf_name  = remember { mutableStateOf("") }
     val tf_phone  = remember { mutableStateOf("") }
@@ -55,7 +56,7 @@ fun SavePage(navController: NavController){
                 label = { Text(text = "Person Phone")}
             )
             Button(onClick = {
-                insertPerson(tf_name.value,tf_phone.value)
+                kayitSayfaViewModel.ekle(tf_name.value,tf_phone.value)
                 navController.navigate("mainpage")
             }) {
                 Text(text = "Save")
@@ -64,6 +65,4 @@ fun SavePage(navController: NavController){
     }
 }
 
-fun insertPerson(person_name:String,person_phone:String) {
-    Log.e("Added Person","New Person: $person_name - $person_phone")
-}
+

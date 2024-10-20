@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.enesorhan.contactsapp" />
+                  <option name="mobileSdkAppId" value="1:705263080417:android:d192c0227218657242b8a0" />
+                  <option name="projectId" value="sonartik-a7222" />
+                  <option name="projectNumber" value="705263080417" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
